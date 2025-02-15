@@ -2,13 +2,13 @@ import { useSchemaChecks, SchemaDataRow } from './SchemaCheckProvider';
 
 import { Alert } from '@mui/material';
 
-export default function Piece({
+export default function Piece<T = SchemaDataRow>({
 	table,
 	srcRow,
 	col,
 }: {
 	table: string;
-	srcRow: SchemaDataRow;
+	srcRow: T;
 	col: string;
 }): React.ReactNode {
 	const { prop } = useSchemaChecks();

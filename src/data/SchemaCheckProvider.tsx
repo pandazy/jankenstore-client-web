@@ -44,7 +44,7 @@ function getSchema(schemaMap: SchemaMap, table: string): ResultType<Schema> {
  * @param param0
  * @returns
  */
-function getProp({
+function getProp<T = number | string>({
 	schemaFamily,
 	prop,
 	table,
@@ -54,9 +54,9 @@ function getProp({
 	schemaFamily: SchemaFamily;
 	table: string;
 	prop: string;
-	row: DataRow;
+	row: Record<string, T>;
 	ignoreDefaults?: boolean;
-}): ResultType<number | string> {
+}): ResultType<T> {
 	const schemaResult = getSchema(schemaFamily.map, table);
 	if (schemaResult.isErr()) return err(schemaResult.unwrapErr());
 	const schema = schemaResult.unwrap();
@@ -71,7 +71,7 @@ function getProp({
 	const rawData = row[prop];
 	const result = ignoreDefaults ? rawData ?? schema.defaults[prop] : rawData;
 
-	return ok(result);
+	return ok(result as T);
 }
 
 /**
@@ -84,7 +84,7 @@ function getProp({
  * @param row
  * @param ignoreDefaults
  */
-function getProps({
+function getProps<I = DataRow, O = DataRow>({
 	schemaFamily,
 	table,
 	props,
@@ -94,20 +94,20 @@ function getProps({
 	schemaFamily: SchemaFamily;
 	table: string;
 	props: string[];
-	row: DataRow;
+	row: I;
 	ignoreDefaults?: boolean;
-}): ResultType<DataRow> {
-	const ret = {} as DataRow;
+}): ResultType<O> {
+	const ret = {} as O;
 	for (const prop of props) {
 		const propResult = getProp({
 			schemaFamily,
 			table,
 			prop,
-			row,
+			row: row as DataRow,
 			ignoreDefaults,
 		});
 		if (propResult.isErr()) return err(propResult.unwrapErr());
-		ret[prop] = propResult.unwrap();
+		(ret as unknown as DataRow)[prop] = propResult.unwrap();
 	}
 	return ok(ret);
 }
@@ -265,21 +265,24 @@ function checkSiblingHood(
 
 interface SchemaFamilyChecks {
 	verifyTable: (table: string) => ResultType<boolean>;
-	pk: (table: string, data: DataRow) => ResultType<string>;
+	pkValue: <T = number | string>(
+		table: string,
+		data: DataRow,
+	) => ResultType<T>;
 	pkField: (table: string) => ResultType<string>;
-	parents: (table: string) => string[];
-	prop: (
+	parentNames: (table: string) => string[];
+	prop: <T = number | string>(
 		table: string,
 		prop: string,
-		data: DataRow,
+		data: Record<string, T>,
 		ignoreDefaults?: boolean,
-	) => ResultType<number | string>;
-	props: (
+	) => ResultType<T>;
+	props: <T = DataRow>(
 		table: string,
 		props: string[],
 		data: DataRow,
 		ignoreDefaults?: boolean,
-	) => ResultType<DataRow>;
+	) => ResultType<T>;
 	checkNew: (
 		table: string,
 		newRecord: DataRow,
@@ -302,9 +305,9 @@ const DefaultErrorMessage =
 
 const DefaultSchemaFamilyChecks: SchemaFamilyChecks = {
 	verifyTable: () => err(new Error(DefaultErrorMessage)),
-	pk: () => err(new Error(DefaultErrorMessage)),
+	pkValue: () => err(new Error(DefaultErrorMessage)),
 	pkField: () => err(new Error(DefaultErrorMessage)),
-	parents: () => [],
+	parentNames: () => [],
 	prop: () => err(new Error(DefaultErrorMessage)),
 	props: () => err(new Error(DefaultErrorMessage)),
 	checkNew: () => err(new Error(DefaultErrorMessage)),
@@ -325,8 +328,8 @@ export function makeSchemaFamilyChecks(
 			}
 			return ok(true);
 		},
-		parents: (table: string) => {
-			const { parents } = copiedFamily;
+		parentNames: (table: string) => {
+			const { parents } = copiedFamily as SchemaFamily;
 			return parents[table] ?? [];
 		},
 		pkField: (table: string) => {
@@ -335,7 +338,10 @@ export function makeSchemaFamilyChecks(
 			const schema = schemaResult.unwrap();
 			return ok(schema.pk);
 		},
-		pk: (table: string, data: DataRow) => {
+		pkValue<T = number | string>(
+			table: string,
+			data: DataRow,
+		): ResultType<T> {
 			const schemaResult = getSchema(copiedFamily.map, table);
 			if (schemaResult.isErr()) return err(schemaResult.unwrapErr());
 			const schema = schemaResult.unwrap();
@@ -353,25 +359,38 @@ export function makeSchemaFamilyChecks(
 					new Error(`Primary key field '${pkField}' is empty`),
 				);
 			}
-			return ok(pkValue);
+			return ok(pkValue as T);
 		},
-		prop: (table, prop, data, ignoreDefaults = false) =>
-			getProp({
+		prop<T = number | string>(
+			table: string,
+			prop: string,
+			data: Record<string, T>,
+			ignoreDefaults = false,
+		) {
+			return getProp({
 				schemaFamily: copiedFamily,
 				table,
 				prop,
-				row: data,
+				row: data as DataRow,
 				ignoreDefaults,
-			}),
+			}) as ResultType<T>;
+		},
 
-		props: (table, props, data, ignoreDefaults = false) =>
-			getProps({
+		props<T = DataRow>(
+			table: string,
+			props: string[],
+			data: DataRow,
+			ignoreDefaults = false,
+		) {
+			return getProps({
 				schemaFamily: copiedFamily,
 				table,
 				props,
 				row: data,
 				ignoreDefaults,
-			}),
+			}) as ResultType<T>;
+		},
+
 		checkNew: (table, newRecord, ignoreDefaults) => {
 			const schemaResult = getSchema(copiedFamily.map, table);
 			if (schemaResult.isErr()) return err(schemaResult.unwrapErr());
@@ -430,12 +449,12 @@ function useSchemaProps({
 	return { props: propsResult.unwrap(), hasError: false };
 }
 
-function useSchemaPk(
+function useSchemaPk<T = string | number>(
 	table: string,
 	data: DataRow,
 	enabled: boolean = true,
-): { pk?: string; hasError: boolean; error?: Error } {
-	const { pk } = useSchemaChecks();
+): { pk?: T; hasError: boolean; error?: Error } {
+	const { pkValue: pk } = useSchemaChecks();
 	if (!enabled) {
 		return { hasError: false };
 	}
@@ -447,7 +466,7 @@ function useSchemaPk(
 	if (pkValue == null || String(pkValue).trim() === '') {
 		return { hasError: true, error: new Error('Primary key is empty') };
 	}
-	return { hasError: false, pk: pkValue };
+	return { hasError: false, pk: pkValue as T };
 }
 
 function SchemaCheckProvider({

@@ -1,6 +1,6 @@
 {
 	"name": "@pandazy/jankenstore-client-web",
-	"version": "0.1.4",
+	"version": "0.1.5",
 	"type": "module",
 	"module": "dist/index.js",
 	"main": "dist/index.js",
