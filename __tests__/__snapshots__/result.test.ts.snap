@@ -1,0 +1,5 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`Tests for Result Should create err Result 1`] = `"Test error"`;
+
+exports[`Tests for Result Should create ok Result 1`] = `"unwrapErr called on Ok value: 1"`;
