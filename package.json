@@ -7,7 +7,8 @@
 	"scripts": {
 		"test": "jest",
 		"clean-build": "rm -rf dist",
-		"build": "bun run clean-build && tsc -p tsconfig.build.json && bun run build.ts"
+		"build": "bun run clean-build && tsc -p tsconfig.build.json && bun run build.ts",
+		"publish": "bun run build && bun publish"
 	},
 	"files": [
 		"dist"
