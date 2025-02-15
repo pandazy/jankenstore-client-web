@@ -1,6 +1,6 @@
 {
 	"name": "@pandazy/jankenstore-client-web",
-	"version": "0.1.0",
+	"version": "0.1.2",
 	"type": "module",
 	"module": "dist/index.js",
 	"main": "dist/index.js",
@@ -11,7 +11,8 @@
 		"publish": "bun run build && bun publish"
 	},
 	"files": [
-		"dist"
+		"dist",
+		"src"
 	],
 	"devDependencies": {
 		"@testing-library/dom": "^10.4.0",
