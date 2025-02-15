@@ -6,9 +6,9 @@ await build({
 	target: 'browser',
 	entrypoints: [
 		'./src/index.ts',
-		'./src/data/result.ts',
-		'./src/crud-ui/SimpleForm.tsx',
-		'./src/crud-ui/DebouncedTextField.tsx',
+		'./src/common/index.ts',
+		'./src/data/index.ts',
+		'./src/crud-ui/index.ts',
 		'./src/nav/AvatarNav.tsx',
 	],
 	// Define the output directory
