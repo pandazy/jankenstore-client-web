@@ -4,6 +4,7 @@ import {
 	ButtonProps,
 	PopoverProps,
 	Tooltip,
+	TooltipProps,
 } from '@mui/material';
 
 import { ReactElement, useState } from 'react';
@@ -12,8 +13,8 @@ export type PopButtonProps = {
 	buttonProps?: ButtonProps;
 	popoverProps?: PopoverProps;
 	popoverContent?: React.ReactNode;
-	tooltip?: React.ReactNode;
 	children: React.ReactNode;
+	tooltipProps?: Omit<TooltipProps, 'children'>;
 };
 
 export default function PopButton({
@@ -21,7 +22,7 @@ export default function PopButton({
 	popoverContent,
 	popoverProps,
 	buttonProps,
-	tooltip,
+	tooltipProps,
 }: PopButtonProps): ReactElement {
 	const [anchorEl, setAnchorEl] = useState<HTMLButtonElement | null>(null);
 	const isOpen = Boolean(anchorEl);
@@ -56,8 +57,8 @@ export default function PopButton({
 					{popoverContent}
 				</Popover>
 			)}
-			{tooltip ? (
-				<Tooltip title={tooltip}>
+			{tooltipProps ? (
+				<Tooltip {...tooltipProps}>
 					<Button {...buttonProps} onClick={handleClick}>
 						{children}
 					</Button>
