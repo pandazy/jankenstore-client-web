@@ -15,20 +15,20 @@ const DEFAULT_AVATAR_SIZE = 64;
 const DEFAULT_AVATAR_SX: AvatarOwnProps['sx'] = {
 	width: DEFAULT_AVATAR_SIZE,
 	height: DEFAULT_AVATAR_SIZE,
+	backgroundColor: 'var(--mui-palette-common-white)',
 	borderWidth: 2,
 	borderStyle: 'solid',
+	color: 'var(--mui-palette-primary-dark)',
 };
 
 const DEFAULT_ACTIVE_SX: AvatarOwnProps['sx'] = {
-	borderColor: 'var(--mui-palette-grey-600)',
-	backgroundColor: 'var(--mui-palette-grey-500)',
-	color: 'var(--mui-palette-common-white)',
+	borderColor: 'var(--mui-palette-grey-400)',
+	backgroundColor: 'var(--mui-palette-action-selected)',
 	cursor: 'default',
 };
 
 const DEFAULT_INACTIVE_SX: AvatarOwnProps['sx'] = {
 	borderColor: 'var(--mui-palette-grey-200)',
-	backgroundColor: 'var(--mui-palette-common-white)',
 	color: 'var(--mui-palette-primary-dark)',
 	boxShadow: 'var(--mui-shadows-3)',
 };
