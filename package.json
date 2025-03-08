@@ -1,13 +1,13 @@
 {
 	"name": "@pandazy/jankenstore-client-web",
-	"version": "0.1.8",
+	"version": "0.1.9",
 	"type": "module",
 	"module": "dist/index.js",
 	"main": "dist/index.js",
 	"scripts": {
 		"test": "jest",
 		"clean-build": "rm -rf dist",
-		"build": "bun run clean-build && tsc -p tsconfig.build.json && bun run build.ts",
+		"build": "bun run clean-build && tsc -p tsconfig.build.json && NODE_ENV=production bun run build.ts",
 		"release": "bun run build && bun publish"
 	},
 	"files": [
